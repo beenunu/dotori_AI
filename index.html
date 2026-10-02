@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>다람쥐 토리의 겨울 준비: 인공지능은 어떻게 배울까</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#eef3e3; --card:#fbfcf4; --ink:#23351f; --muted:#56664e; --line:#cfdcbd;
+  --soft:#e1ebd0; --brand:#8a5a2b; --brand-ink:#fff8ea; --gold:#e3a63b;
+  --berry:#c8394b; --ok:#2f7d3a; --forest1:#b9d79a; --forest2:#8fbf6f;
+  --c1:#c8394b; --c2:#2a78b5; --c3:#2f7d3a; --c4:#8a4fb5;
+  --display:"Jua","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --body:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#161d14; --card:#1f2a1c; --ink:#eaf2dc; --muted:#a6b89a; --line:#3a4a33;
+    --soft:#283623; --brand:#e0a25c; --brand-ink:#24170a; --gold:#f0bd5c;
+    --berry:#f07a88; --ok:#86d08f; --forest1:#2c4426; --forest2:#3a5a31;
+    --c1:#f07a88; --c2:#6fb6ea; --c3:#86d08f; --c4:#c59af0;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#161d14; --card:#1f2a1c; --ink:#eaf2dc; --muted:#a6b89a; --line:#3a4a33;
+  --soft:#283623; --brand:#e0a25c; --brand-ink:#24170a; --gold:#f0bd5c;
+  --berry:#f07a88; --ok:#86d08f; --forest1:#2c4426; --forest2:#3a5a31;
+  --c1:#f07a88; --c2:#6fb6ea; --c3:#86d08f; --c4:#c59af0;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.7}
+h1,h2,h3{font-family:var(--display);font-weight:400;line-height:1.25;margin:0}
+p{margin:.5em 0}
+button,textarea,input{font-family:inherit;font-size:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+
+/* 상단: 단원 이동과 도토리 도장 */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:2px dotted var(--line)}
+.top nav{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;max-width:1040px;margin:0 auto;scrollbar-width:thin}
+.top nav button{flex:none;border:2px solid var(--line);background:var(--card);color:var(--muted);font-family:var(--display);font-size:.85em;padding:4px 12px;border-radius:999px;cursor:pointer;min-height:40px;display:inline-flex;align-items:center;gap:4px}
+.top nav button.on{color:var(--brand-ink);background:var(--brand);border-color:var(--brand)}
+.top nav button .st{display:none}
+.top nav button.done .st{display:inline-flex}
+.bar{height:5px;background:var(--gold);width:0;transition:width .4s}
+
+main{max-width:1040px;margin:0 auto;padding:0 16px 130px;zoom:var(--z,1)}
+.unit{padding:26px 0 10px}
+body.paged .unit{display:none}
+body.paged .unit.cur{display:block}
+.unit>header{margin-bottom:12px}
+.unit h2{font-size:clamp(1.5em,5vw,2.2em)}
+.time{display:inline-block;font-family:var(--display);font-size:.85em;background:var(--gold);color:#3a2706;border-radius:999px;padding:1px 12px;margin-bottom:6px}
+.lead{font-size:1.05em;max-width:38em}
+.goal{color:var(--muted);max-width:38em}
+.goal b,.field b,.more summary,.think label b{font-family:var(--display);font-weight:400}
+
+/* 첫 화면 */
+.hero{display:grid;gap:10px;align-items:center}
+.hero h1{font-size:clamp(2.2em,8vw,4em)}
+.hero .duo{display:flex;align-items:flex-end;gap:4px}
+@media(min-width:720px){.hero{grid-template-columns:1fr auto}}
+.plan{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-top:14px}
+.plan div{background:var(--card);border-radius:18px;padding:12px 16px}
+.plan h3{font-size:1.15em;color:var(--brand)}
+.plan ol{margin:6px 0 0;padding-left:1.3em}
+
+/* 글 덩어리와 활동 덩어리를 다르게 */
+.act{background:var(--card);border:3px solid var(--brand);border-radius:22px;padding:16px;margin:14px 0}
+.act>h3{font-size:1.25em;margin-bottom:4px}
+.act.grid{display:grid;gap:14px}
+@media(min-width:800px){.act.grid{grid-template-columns:1.05fr .95fr;align-items:start}.act.grid>.stage{order:-1}}
+.plain{margin:14px 0}
+.plain h3{font-size:1.2em;color:var(--brand)}
+.field{border-left:5px solid var(--c2);padding:4px 0 4px 14px;margin:14px 0;max-width:40em}
+.more{border:2px dashed var(--line);border-radius:14px;padding:8px 14px;margin:12px 0;max-width:42em}
+.more summary{cursor:pointer}
+.teacher{display:none;background:var(--soft);border-radius:14px;padding:10px 16px;margin:10px 0}
+body.t-on .teacher{display:block}
+.teacher b{font-family:var(--display);font-weight:400;color:var(--berry)}
+.teacher ul{margin:4px 0;padding-left:1.2em}
+.think{margin:14px 0;max-width:42em}
+.think textarea{display:block;width:100%;min-height:70px;margin-top:6px;border:2px solid var(--line);border-radius:12px;background:var(--card);padding:8px 10px;line-height:1.5}
+
+/* 말풍선과 밤이 반응 */
+.say,.react{display:flex;gap:10px;align-items:flex-start;margin:10px 0;max-width:42em}
+.say p,.react p{background:var(--soft);border-radius:4px 18px 18px 18px;padding:8px 14px;margin:0;flex:1}
+.react p{font-family:var(--display);min-height:2.6em}
+.face{flex:none;line-height:0}
+.face.hop{animation:hop .45s}
+@keyframes hop{30%{transform:translateY(-10px) rotate(-6deg)}60%{transform:translateY(0) rotate(4deg)}}
+
+.btn{min-height:46px;padding:6px 16px;border-radius:14px;border:2px solid var(--brand);background:var(--brand);color:var(--brand-ink);font-family:var(--display);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--brand)}
+.btn:disabled{opacity:.45;cursor:default}
+.undo{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;min-height:44px;margin-left:auto}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+.hint{color:var(--muted);font-size:.9em}
+svg.plot{width:100%;height:auto;display:block;background:var(--bg);border:2px solid var(--line);border-radius:16px;touch-action:manipulation}
+svg.plot text{fill:var(--ink);font-family:var(--body);font-size:13px}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%}
+th,td{border-bottom:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{font-family:var(--display);font-weight:400;color:var(--brand)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:6px}
+.legend span{display:inline-flex;align-items:center;gap:4px}
+
+/* 1. 포함 관계 */
+.ring{border:3px solid var(--c3);border-radius:34px;padding:12px;background:var(--bg)}
+.ring.ml{border-color:var(--gold);background:var(--soft);margin-top:10px}
+.ring.dl{border-color:var(--berry);background:var(--card);margin-top:10px}
+.ring>button{font-family:var(--display);font-size:1.05em;background:var(--card);border:2px solid currentColor;border-radius:999px;padding:4px 16px;min-height:44px;cursor:pointer}
+.ring>button[aria-pressed="true"]{background:var(--gold);color:#3a2706;border-color:var(--gold)}
+#ringInfo h3{font-size:1.4em}
+
+/* 2. 데이터 준비 */
+.steps{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px}
+.steps button{flex:none;min-height:44px;border:2px solid var(--line);background:var(--bg);border-radius:12px;padding:4px 12px;font-family:var(--display);cursor:pointer}
+.steps button.on{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.steps button.ok::after{content:" ✓";color:var(--ok)}
+.steps button.on.ok::after{color:inherit}
+.panel{display:none}.panel.on{display:block}
+.forest{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;padding:10px;border-radius:18px;background:linear-gradient(var(--forest1),var(--forest2));overflow:hidden}
+.forest .tree{position:absolute;opacity:.5;pointer-events:none}
+.forest button{position:relative;background:none;border:0;padding:0;cursor:pointer;height:74px;display:grid;place-items:center}
+.forest button.gone{visibility:hidden}
+.basket{display:flex;flex-wrap:wrap;gap:10px 8px;min-height:68px;background:var(--soft);border-radius:16px;padding:12px 10px 16px;align-items:center}
+.chip{position:relative;background:var(--card);border:2px solid var(--line);border-radius:12px;padding:3px;min-width:52px;min-height:52px;display:grid;place-items:center}
+button.chip{cursor:pointer}
+.chip.pop{animation:pop .3s}
+@keyframes pop{from{transform:scale(.2)}70%{transform:scale(1.15)}}
+.chip .dup{position:absolute;top:-9px;right:-8px;background:var(--berry);color:#fff;border-radius:999px;font-size:11px;line-height:1.5;padding:0 6px;font-family:var(--display)}
+.chip .tag{position:absolute;bottom:-11px;left:50%;transform:translateX(-50%);background:var(--gold);color:#3a2706;border-radius:6px;font-size:11px;line-height:1.5;padding:0 5px;white-space:nowrap;font-family:var(--display)}
+.chip.cur{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold)}
+.chip.shake{animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.photo{position:relative;height:150px;border-radius:16px;background:linear-gradient(var(--forest1),var(--forest2));overflow:hidden}
+.photo button{position:absolute;background:none;border:3px dashed rgba(255,255,255,.7);border-radius:8px;padding:2px;cursor:pointer}
+.photo button.boxed{border:3px solid var(--berry)}
+.photo button .tag{display:none;position:absolute;top:-22px;left:-3px;background:var(--berry);color:#fff;font-size:12px;line-height:1.5;padding:0 6px;border-radius:4px;white-space:nowrap;font-family:var(--display)}
+.photo button.boxed .tag{display:block}
+.marks{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.marks span{border:2px solid var(--line);border-radius:10px;padding:2px 4px;text-align:center;font-family:var(--display);font-size:12px;line-height:1.3;min-width:52px}
+.marks span.o{border-color:var(--ok)}.marks span.x{border-color:var(--berry);background:var(--soft)}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-family:var(--display)}
+.flow span{background:var(--soft);border-radius:10px;padding:2px 12px}
+.flow i{font-style:normal;color:var(--muted)}
+
+/* 5. 미로 */
+.maze{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;max-width:380px}
+.maze div{aspect-ratio:1;background:var(--soft);border-radius:10px;display:grid;place-items:center;position:relative}
+.maze div svg{width:74%;height:auto}
+.maze div small{position:absolute;right:4px;bottom:0;font-size:15px;color:var(--muted)}
+.maze div.me{background:var(--gold)}
+
+/* 6. 신경망 */
+.nn circle{stroke:var(--ink);stroke-width:1.5}
+
+/* 확인 문제와 퀴즈 */
+.check{background:var(--soft);border-radius:18px;padding:14px 16px;margin:16px 0}
+.check h3{font-size:1.1em;color:var(--brand)}
+.q{padding:12px 0;border-top:2px dotted var(--line)}
+.q:first-of-type{border-top:0}
+.q p{font-family:var(--display);font-size:1.05em;margin:0 0 8px}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opts button{min-height:44px;border:2px solid var(--line);background:var(--card);border-radius:12px;padding:4px 14px;cursor:pointer;text-align:left}
+.opts button.right{border-color:var(--ok);background:var(--ok);color:#fff}
+.opts button.wrong{border-color:var(--berry);color:var(--berry);text-decoration:line-through}
+.why{color:var(--muted);margin-top:6px;min-height:1.5em}
+.stamp{display:inline-flex;animation:pop .4s}
+#record{width:100%;min-height:200px;border:2px solid var(--line);border-radius:12px;background:var(--card);padding:10px;line-height:1.5}
+#who{border:2px solid var(--line);border-radius:10px;background:var(--card);padding:4px 10px;min-height:44px}
+.rest{text-align:center}
+.clock{font-family:var(--display);font-size:4em;line-height:1.2}
+.clock.end{animation:flash .5s 6}
+@keyframes flash{50%{color:var(--berry)}}
+
+/* 아래: 이전, 다음, 보기 설정 */
+.pager{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--bg);border-top:2px dotted var(--line);padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px))}
+.pager>div{max-width:1040px;margin:0 auto;display:flex;gap:8px;align-items:center;justify-content:space-between}
+.pager .set{display:flex;gap:4px;flex-wrap:wrap;justify-content:center}
+.pager .set button{border:2px solid var(--line);background:var(--card);border-radius:999px;padding:2px 10px;min-height:40px;font-size:.8em;cursor:pointer;font-family:var(--display);color:var(--muted)}
+.pager .set button[aria-pressed="true"]{background:var(--gold);color:#3a2706;border-color:var(--gold)}
+body:not(.paged) .pager .btn{visibility:hidden}
+</style>
+</head>
+<body class="paged">
+<div class="top">
+  <nav id="nav" aria-label="단원 이동"></nav>
+  <div class="bar" id="bar"></div>
+</div>
+
+<main>
+
+<!-- 시작 -->
+<section class="unit" id="u0">
+  <div class="hero">
+    <div>
+      <h1>다람쥐 토리의<br>겨울 준비</h1>
+      <p class="lead">엄마 다람쥐 토리가 열매를 모으고, 아기 다람쥐 밤이가 열매를 구별하는 법을 배워요. 그 과정을 따라가며 인공지능이 배우는 방법을 알아봅니다.</p>
+    </div>
+    <div class="duo" id="duo" aria-hidden="true"></div>
+  </div>
+  <div class="plan">
+    <div><h3>1교시 (50분)</h3><ol><li>인공지능, 머신러닝, 딥러닝 (8분)</li><li>데이터 준비 (22분)</li><li>지도학습 (20분)</li></ol></div>
+    <div><h3>2교시 (50분)</h3><ol start="4"><li>비지도학습 (13분)</li><li>강화학습 (13분)</li><li>반복학습과 신경망 (14분)</li><li>정리와 퀴즈 (10분)</li></ol></div>
+  </div>
+  <div class="say"><span class="face" data-face="t,happy"></span><p>단원마다 확인 문제를 맞히면 도토리 도장을 하나씩 받아요. 일곱 개를 모두 모아 봅시다. 화면 아래의 "다음"으로 넘어가요.</p></div>
+  <div class="teacher"><b>교사용 안내</b>
+    <ul><li>화면 아래에서 "글씨 크게"를 켜면 전자칠판에서 보기 좋습니다. "전체 보기"는 한 페이지로 길게 펼칩니다.</li>
+    <li>학생 진행 상황은 각자 기기에만 저장됩니다. 7단원의 "내 활동 기록"을 복사해 제출하게 하면 수행 기록으로 쓸 수 있습니다.</li>
+    <li>먼저 끝낸 학생은 각 단원의 "더 해 보기"를 하도록 안내하세요.</li></ul></div>
+</section>
+
+<!-- 1 -->
+<section class="unit" id="u1">
+  <header>
+    <span class="time">8분</span>
+    <h2>1. 인공지능, 머신러닝, 딥러닝</h2>
+    <p class="goal"><b>이 단원을 마치면</b> 세 낱말의 포함 관계를 말하고, 어떤 프로그램이 머신러닝인지 구별할 수 있어요.</p>
+  </header>
+  <div class="teacher"><b>교사용 안내</b><ul><li>도입 질문 2분, 그림 눌러 보기 3분, 확인 문제 3분.</li><li>흔한 오해: 딥러닝을 머신러닝과 별개로 생각함. 그림의 "안에 들어 있다"를 강조하세요.</li></ul></div>
+  <div class="act grid">
+    <div>
+      <h3>이름표를 눌러 보세요</h3>
+      <p>세 낱말은 서로 다른 것이 아니라, 큰 것 안에 작은 것이 들어 있는 관계예요.</p>
+      <div id="ringInfo" aria-live="polite"></div>
+    </div>
+    <div class="stage">
+      <div class="ring ai"><button data-k="ai">인공지능</button>
+        <div class="ring ml"><button data-k="ml">머신러닝 (기계학습)</button>
+          <div class="ring dl"><button data-k="dl">딥러닝 (인공 신경망)</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="say"><span class="face" data-face="t,normal"></span><p>밤이에게 "모자를 쓴 열매는 도토리"처럼 규칙을 하나하나 알려 줄 수도 있지만, 열매를 많이 보여 주고 스스로 알아내게 할 수도 있어요. 뒤쪽이 머신러닝이에요.</p></div>
+  <p class="field"><b>현장에서는</b> 공장의 불량 검사, 가게의 판매량 예측, 사진 보정 앱, 대화형 인공지능이 모두 머신러닝으로 만들어져요. 사람이 규칙을 다 적기 어려운 일일수록 머신러닝이 쓰입니다.</p>
+  <div class="think"><label><b>함께 생각해요.</b> 내 전공이나 일상에서 "기계가 스스로 배운 것 같다"고 느낀 것을 하나 적어 보세요.<textarea data-note="u1"></textarea></label></div>
+  <details class="more"><summary>더 해 보기</summary><p>내가 쓰는 앱 세 개를 골라, 사람이 규칙을 적어 준 기능과 데이터로 배운 기능을 하나씩 찾아보세요.</p></details>
+  <div class="check" data-c="u1"></div>
+</section>
+
+<!-- 2 -->
+<section class="unit" id="u2">
+  <header>
+    <span class="time">22분</span>
+    <h2>2. 데이터 준비: 겨울 창고 채우기</h2>
+    <p class="goal"><b>이 단원을 마치면</b> 수집, 정제, 가공, 라벨링이 각각 무엇인지 설명하고, 데이터가 나쁘면 결과가 어떻게 되는지 직접 확인할 수 있어요.</p>
+  </header>
+  <div class="teacher"><b>교사용 안내</b><ul><li>단계마다 3분씩(①~④), ⑤에서 바구니 비교와 토의 6분, 확인 문제 4분.</li><li>⑤의 결과는 실제 계산입니다. 학생마다 정제와 이름표가 다르면 정답률도 달라지니 서로 비교하게 하세요.</li><li>토의 질문: "돌멩이를 하나만 남겨도 결과가 달라질까?" 직접 해 보게 하세요.</li></ul></div>
+  <div class="act">
+    <div class="steps" id="steps">
+      <button data-s="0" class="on">① 수집</button><button data-s="1">② 정제</button><button data-s="2">③ 가공</button><button data-s="3">④ 라벨링</button><button data-s="4">⑤ 가르치기</button>
+    </div>
+
+    <div class="panel on" data-p="0">
+      <h3>수집: 숲에서 줍기</h3>
+      <p>숲에 떨어진 것을 눌러 바구니에 담아요. 이 단계에서는 가리지 않고 많이, 골고루 모읍니다.</p>
+      <div class="forest" id="forest"></div>
+      <div class="react" id="r0" aria-live="polite"><span class="face"></span><p></p></div>
+      <div class="basket" id="basket0"></div>
+      <div class="row"><button class="btn ghost" id="collectAll">한 번에 모두 줍기</button><button class="btn" data-go="1">다음: 정제</button></div>
+    </div>
+
+    <div class="panel" data-p="1">
+      <h3>정제: 못 쓰는 것 골라내기</h3>
+      <p>열매가 아닌 것, 상한 것, 두 번 센 것이 섞여 있어요. 눌러서 골라내세요. 일부러 남겨 두고 ⑤에서 어떻게 되는지 봐도 좋아요.</p>
+      <div class="basket" id="basket1"></div>
+      <div class="react" id="r1" aria-live="polite"><span class="face"></span><p></p></div>
+      <div class="row"><button class="btn" data-go="2">다음: 가공</button><button class="undo" id="cleanReset">처음 바구니로 되돌리기</button></div>
+    </div>
+
+    <div class="panel" data-p="2">
+      <h3>가공: 배우기 좋은 모양으로 바꾸기</h3>
+      <p>흙이 묻어 있고 놓인 크기도 제각각이에요. 다듬은 뒤, 기계가 읽을 수 있도록 숫자로 적어 줍니다.</p>
+      <div class="basket" id="basket2"></div>
+      <div class="row"><button class="btn" id="tidy">흙 털고 다듬기</button><button class="btn" id="measure" disabled>크기와 색을 숫자로 적기</button><span class="hint" id="measureHint">먼저 다듬어야 잴 수 있어요.</span></div>
+      <div class="scroll" id="featTable"></div>
+      <div class="say"><span class="face" data-face="t,normal"></span><p>정제와 가공을 합쳐서 전처리라고 불러요. 배우기 전에 미리 손질한다는 뜻이에요.</p></div>
+      <div class="row"><button class="btn" data-go="3">다음: 라벨링</button></div>
+    </div>
+
+    <div class="panel" data-p="3">
+      <h3>라벨링: 이름표 붙이기</h3>
+      <p>노란 테두리 열매의 이름을 골라 주세요. 틀린 이름표도 그대로 붙어요. 밤이는 붙어 있는 이름표대로 배웁니다.</p>
+      <div class="basket" id="basket3"></div>
+      <div class="row" id="labelBtns"></div>
+      <div class="react" id="r3" aria-live="polite"><span class="face"></span><p></p></div>
+      <h3>어노테이션: 위치까지 표시하기</h3>
+      <p>사진 속 열매를 눌러 상자를 쳐 보세요. 이름표, 위치 상자, 설명 달기처럼 데이터에 정보를 덧붙이는 일을 모두 어노테이션이라고 하고, 그중 이름을 붙이는 일이 라벨링이에요.</p>
+      <div class="photo" id="photo"></div>
+      <div class="row"><button class="btn" data-go="4">다음: 가르치기</button></div>
+    </div>
+
+    <div class="panel" data-p="4">
+      <h3>가르치기: 데이터가 좋아야 잘 배워요</h3>
+      <p>밤이는 바구니의 열매로 배운 뒤, <b>배울 때 보지 못한 시험용 열매 10개</b>의 이름을 맞혀요. 바구니를 바꿔 가며 비교해 보세요.</p>
+      <div class="row"><button class="btn" data-teach="mine">내 바구니로 가르치기</button></div>
+      <div class="row"><span class="hint">비교용 바구니</span><button class="btn ghost" data-teach="clean">깨끗한 바구니</button><button class="btn ghost" data-teach="dirty">정제 안 한 바구니</button><button class="btn ghost" data-teach="bias">도토리만 잔뜩 모은 바구니</button></div>
+      <div class="marks" id="marks"></div>
+      <div class="react" id="r4" aria-live="polite"><span class="face"></span><p></p></div>
+    </div>
+  </div>
+  <div class="plain">
+    <h3>한눈에 보는 흐름</h3>
+    <div class="flow"><span>수집</span><i>▶</i><span>정제</span><i>▶</i><span>가공</span><i>▶</i><span>어노테이션(라벨링)</span><i>▶</i><span>학습</span><i>▶</i><span>시험</span></div>
+    <p>정제와 가공을 묶어 전처리라고 부릅니다. 가르칠 때 쓰는 데이터(학습용)와 실력을 확인하는 데이터(시험용)는 반드시 따로 둡니다.</p>
+  </div>
+  <div class="plain">
+    <h3>데이터를 다룰 때 꼭 챙길 것</h3>
+    <ul>
+      <li><b>치우침(편향)</b>: 도토리만 잔뜩 모으면 밤이는 뭐든 도토리라고 답해요. 종류와 상황을 골고루 모아야 합니다.</li>
+      <li><b>개인정보와 저작권</b>: 사람 얼굴, 이름, 남이 만든 사진과 글은 허락 없이 모으면 안 됩니다.</li>
+      <li><b>이름표 검수</b>: 현장에서는 두 사람이 따로 이름표를 붙인 뒤 서로 다른 곳을 다시 확인합니다.</li>
+    </ul>
+  </div>
+  <p class="field"><b>현장에서는</b> 용접 사진에 결함 위치를 표시하거나, 부품 사진에 "정상/불량"을 붙이거나, 상담 녹음을 글로 옮기는 일이 모두 데이터 라벨링 직무예요. 인공지능 개발 시간의 대부분은 이 데이터 준비에 들어갑니다.</p>
+  <div class="think"><label><b>함께 생각해요.</b> 내 바구니와 비교용 바구니의 정답 수는 각각 몇 개였나요? 왜 차이가 났을까요?<textarea data-note="u2"></textarea></label></div>
+  <details class="more"><summary>더 해 보기</summary><p>② 정제에서 돌멩이 하나만 남기고 ⑤로 가 보세요. 그다음 ④에서 밤 두 개에 일부러 "호두" 이름표를 붙이고 다시 가르쳐 보세요. 어느 쪽이 더 큰 문제를 일으키나요?</p></details>
+  <div class="check" data-c="u2"></div>
+</section>
+
+<!-- 3 -->
+<section class="unit" id="u3">
+  <header>
+    <span class="time">20분</span>
+    <h2>3. 지도학습: 이름표를 보고 배우기</h2>
+    <p class="goal"><b>이 단원을 마치면</b> 지도학습이 정답이 붙은 데이터로 배운다는 것을 설명하고, 분류와 회귀를 구별할 수 있어요.</p>
+  </header>
+  <div class="teacher"><b>교사용 안내</b><ul><li>분류 8분, 회귀 7분, 확인 문제와 정리 5분.</li><li>분류에서 묶음 사이 경계에 열매를 놓게 해 "애매한 곳에서는 기계도 자신이 없다"를 경험하게 하세요.</li><li>회귀의 빨간 점선이 "틀린 만큼(오차)"이라는 점을 짚어 두면 6단원과 이어집니다.</li></ul></div>
+  <div class="act grid">
+    <div>
+      <h3>분류: 이 열매는 무엇일까</h3>
+      <p>그림의 빈 곳을 눌러 새 열매를 놓아 보세요. 밤이는 가장 가까운 이웃 열매 3개의 이름표를 보고 정합니다.</p>
+      <div class="row"><button class="btn ghost" id="knnRand">아무 데나 놓기</button></div>
+      <p class="hint">묶음과 묶음 사이 애매한 곳에도 놓아 보세요.</p>
+    </div>
+    <div class="stage">
+      <svg class="plot" id="knn" viewBox="0 0 320 250" role="img" aria-label="크기와 색으로 나타낸 열매 그림"></svg>
+      <div class="legend" id="knnLegend"></div>
+      <div class="react" id="rk" aria-live="polite"><span class="face"></span><p></p></div>
+    </div>
+  </div>
+  <div class="act grid">
+    <div>
+      <h3>회귀: 크기로 무게 맞히기</h3>
+      <p>창고에 얼마나 들어갈지 알려면 무게가 필요해요. 저울 없이 크기만 보고 무게를 짐작하려면, 점들에 가장 잘 맞는 직선을 찾으면 됩니다. 이름이 아니라 숫자를 맞히는 것을 회귀라고 해요.</p>
+      <label for="wSlider">직선의 기울기</label>
+      <input type="range" id="wSlider" min="0" max="4" step="0.1" value="0.5" style="width:100%;accent-color:var(--brand);height:44px">
+    </div>
+    <div class="stage">
+      <svg class="plot" id="fit1" viewBox="0 0 320 250" role="img" aria-label="열매 크기와 무게 그림"></svg>
+      <div class="react" id="rf" aria-live="polite"><span class="face"></span><p></p></div>
+    </div>
+  </div>
+  <p class="field"><b>현장에서는</b> "정상/불량"이 표시된 부품 사진으로 새 부품을 판정하는 것이 분류, 지난 판매 기록으로 내일 팔릴 개수를 맞히는 것이 회귀예요.</p>
+  <div class="think"><label><b>함께 생각해요.</b> 내 전공에서 분류로 풀 문제 하나와 회귀로 풀 문제 하나를 적어 보세요.<textarea data-note="u3"></textarea></label></div>
+  <details class="more"><summary>더 해 보기</summary><p>밤이의 대답이 "자신이 없다"로 나오는 자리를 세 군데 찾아보세요. 그 자리들의 공통점은 무엇인가요?</p></details>
+  <div class="check" data-c="u3"></div>
+</section>
+
+<section class="unit" id="rest">
+  <div class="act rest">
+    <h2>쉬는 시간</h2>
+    <div class="clock" id="clock">10:00</div>
+    <button class="btn" id="clockBtn">쉬는 시간 시작</button>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="unit" id="u4">
+  <header>
+    <span class="time">13분</span>
+    <h2>4. 비지도학습: 이름표 없이 묶기</h2>
+    <p class="goal"><b>이 단원을 마치면</b> 정답 없이 비슷한 것끼리 묶는 군집화를 설명하고, 지도학습과의 차이를 말할 수 있어요.</p>
+  </header>
+  <div class="teacher"><b>교사용 안내</b><ul><li>묶기 활동 6분, 묶음 개수 바꿔 보기 3분, 확인 문제 4분.</li><li>깃발 위치가 처음에 무작위라서 학생마다 과정이 다릅니다. "결과가 같아졌나?"를 비교하게 하세요.</li></ul></div>
+  <div class="act grid">
+    <div>
+      <h3>깃발을 꽂아 묶기</h3>
+      <p>별은 묶음의 중심에 꽂은 깃발이에요. "가까운 깃발로 나누기"와 "깃발을 묶음 한가운데로 옮기기"를 번갈아 합니다.</p>
+      <div class="row"><button class="btn" id="kmStep">다음 단계</button><button class="btn ghost" id="kmReset">깃발 다시 꽂기</button></div>
+      <div class="row"><span>묶음 개수</span><button class="btn ghost" data-k="2">2</button><button class="btn ghost" data-k="3">3</button><button class="btn ghost" data-k="4">4</button></div>
+    </div>
+    <div class="stage">
+      <svg class="plot" id="km" viewBox="0 0 320 250" role="img" aria-label="이름표 없는 열매 그림"></svg>
+      <div class="react" id="rm" aria-live="polite"><span class="face"></span><p></p></div>
+    </div>
+  </div>
+  <div class="say"><span class="face" data-face="t,normal"></span><p>밤이는 묶음을 만들 수는 있지만, 그 묶음이 도토리인지는 몰라요. 묶음에 뜻을 붙이는 건 사람의 몫이에요.</p></div>
+  <p class="field"><b>현장에서는</b> 손님의 구매 기록을 비슷한 유형끼리 묶어 맞춤 행사를 하거나, 기계의 진동 기록에서 평소와 다른 묶음을 찾아 고장을 미리 알아내는 데 쓰여요.</p>
+  <div class="think"><label><b>함께 생각해요.</b> 묶음 개수를 2, 3, 4로 바꿨을 때 어느 것이 가장 자연스러웠나요? 왜 그렇게 생각했나요?<textarea data-note="u4"></textarea></label></div>
+  <details class="more"><summary>더 해 보기</summary><p>"깃발 다시 꽂기"를 여러 번 해 보세요. 시작 위치에 따라 최종 묶음이 달라지는 경우가 있나요?</p></details>
+  <div class="check" data-c="u4"></div>
+</section>
+
+<!-- 5 -->
+<section class="unit" id="u5">
+  <header>
+    <span class="time">13분</span>
+    <h2>5. 강화학습: 해 보고 보상으로 배우기</h2>
+    <p class="goal"><b>이 단원을 마치면</b> 에이전트, 환경, 행동, 보상을 예를 들어 설명할 수 있어요.</p>
+  </header>
+  <div class="teacher"><b>교사용 안내</b><ul><li>1번씩 도전 관찰 3분, 20번씩 도전하며 그래프 보기 4분, 낱말 정리 2분, 확인 문제 4분.</li><li>밤이는 처음에는 일부러 엉뚱한 길도 가 봅니다(탐험). 도전이 쌓일수록 배운 길을 더 많이 따릅니다.</li></ul></div>
+  <div class="act grid">
+    <div>
+      <h3>미로에서 밤 찾기</h3>
+      <p>정답 길을 알려 주지 않아요. 밤에 도착하면 +10점, 여우를 만나면 -10점, 한 걸음마다 -1점을 받으며 스스로 길을 찾습니다.</p>
+      <div class="row"><button class="btn" id="rl1">1번 도전 보기</button><button class="btn ghost" id="rl20">20번 빠르게 도전</button></div>
+      <div class="row"><button class="btn ghost" id="rlGo">배운 대로 가 보기</button><button class="undo" id="rlReset">처음부터</button></div>
+      <svg class="plot" id="rlChart" viewBox="0 0 320 150" role="img" aria-label="도전마다 걸린 걸음 수"></svg>
+    </div>
+    <div class="stage">
+      <div class="maze" id="maze"></div>
+      <div class="react" id="rr" aria-live="polite"><span class="face"></span><p></p></div>
+    </div>
+  </div>
+  <div class="scroll plain">
+    <table>
+      <tr><th>낱말</th><th>뜻</th><th>이 숲에서는</th></tr>
+      <tr><td>에이전트</td><td>배우는 주인공</td><td>밤이</td></tr>
+      <tr><td>환경</td><td>주인공이 움직이는 세상</td><td>숲 미로</td></tr>
+      <tr><td>행동</td><td>주인공이 고르는 것</td><td>위, 아래, 왼쪽, 오른쪽으로 한 칸</td></tr>
+      <tr><td>보상</td><td>행동의 결과로 받는 점수</td><td>밤, 여우, 걸음 점수</td></tr>
+    </table>
+  </div>
+  <p class="field"><b>현장에서는</b> 물건을 집는 로봇 팔, 창고의 운반 로봇, 바둑과 게임 인공지능이 이렇게 수없이 시도하며 배워요. 실제 기계로 하면 위험하고 오래 걸려서 보통 가상 환경에서 먼저 연습합니다.</p>
+  <div class="think"><label><b>함께 생각해요.</b> 걸음마다 -1점을 주지 않으면 밤이의 행동이 어떻게 달라질까요?<textarea data-note="u5"></textarea></label></div>
+  <details class="more"><summary>더 해 보기</summary><p>"처음부터"를 누른 뒤 20번만 도전시키고 "배운 대로 가 보기"를 해 보세요. 40번, 60번일 때와 비교하면 길이 어떻게 달라지나요?</p></details>
+  <div class="check" data-c="u5"></div>
+</section>
+
+<!-- 6 -->
+<section class="unit" id="u6">
+  <header>
+    <span class="time">14분</span>
+    <h2>6. 반복학습과 신경망</h2>
+    <p class="goal"><b>이 단원을 마치면</b> 반복하며 오차를 줄인다는 것과, 딥러닝이 학습의 종류가 아니라 신경망이라는 방법임을 설명할 수 있어요.</p>
+  </header>
+  <p class="lead">반복학습은 지도, 비지도, 강화학습과 나란히 놓이는 종류가 아니에요. 어떤 학습이든 한 번에 끝나지 않고 여러 번 되풀이하며 조금씩 나아진다는 훈련 방식이에요.</p>
+  <div class="teacher"><b>교사용 안내</b><ul><li>직선 연습 4분, 신경망 연습 5분, 대화형 인공지능 설명 2분, 확인 문제 3분.</li><li>신경망은 실제로 학습합니다. 연습 전에는 세 답의 확률이 비슷하다가 연습할수록 한쪽으로 뚜렷해지는 것을 보여 주세요.</li></ul></div>
+  <div class="act grid">
+    <div>
+      <h3>연습할수록 줄어드는 오차</h3>
+      <p>3단원에서 손으로 맞춘 직선을 이번에는 밤이가 스스로 맞춰요. 연습 한 번마다 틀린 만큼 직선을 조금 고칩니다.</p>
+      <div class="row"><button class="btn" id="gd1">연습 1회</button><button class="btn ghost" id="gd5">연습 5회</button><button class="undo" id="gdReset">처음부터</button></div>
+      <svg class="plot" id="lossChart" viewBox="0 0 320 150" role="img" aria-label="연습 횟수에 따른 오차"></svg>
+    </div>
+    <div class="stage">
+      <svg class="plot" id="fit2" viewBox="0 0 320 250" role="img" aria-label="연습하며 맞춰지는 직선"></svg>
+      <div class="react" id="rg" aria-live="polite"><span class="face"></span><p></p></div>
+    </div>
+  </div>
+  <div class="plain">
+    <p>가진 데이터를 처음부터 끝까지 한 번 다 연습하는 것을 1에폭이라고 해요.</p>
+    <p><b>과적합</b>: 연습 문제의 답만 통째로 외우면 연습 문제는 100점이지만 처음 보는 문제는 틀려요. 그래서 2단원처럼 시험용 데이터를 따로 두고, 시험 점수가 더 오르지 않으면 연습을 멈춥니다.</p>
+  </div>
+  <div class="act grid">
+    <div>
+      <h3>신경망: 두뇌를 본뜬 구조</h3>
+      <p>동그라미는 신경세포를 흉내 낸 것, 선은 연결이에요. 연습할수록 선의 굵기(연결의 세기)가 바뀌어요. 가운데 층을 여러 겹 깊게 쌓은 것이 딥러닝입니다.</p>
+      <div class="row"><button class="btn" id="nnTrain">연습 5회</button><button class="btn ghost" id="nnShow">열매 하나 보여 주기</button><button class="undo" id="nnReset">처음부터</button></div>
+      <p class="hint">굵은 선일수록 강한 연결이에요. 파란 선은 신호를 키우고 빨간 선은 줄입니다.</p>
+    </div>
+    <div class="stage">
+      <svg class="plot nn" id="nn" viewBox="0 0 360 220" role="img" aria-label="입력층, 은닉층, 출력층으로 된 신경망"></svg>
+      <div class="react" id="rn" aria-live="polite"><span class="face"></span><p></p></div>
+    </div>
+  </div>
+  <div class="plain">
+    <h3>신경망은 어느 학습에나 쓰여요</h3>
+    <p>딥러닝은 네 번째 학습 종류가 아니에요. 지도학습에도, 비지도학습에도, 강화학습에도 신경망을 쓸 수 있습니다.</p>
+    <h3>대화형 인공지능은 어디에 있을까</h3>
+    <p>글을 쓰고 대화하는 인공지능도 아주 큰 신경망이에요. 엄청나게 많은 글에서 "다음에 올 낱말 맞히기"를 수없이 반복하며 배웁니다. 정답(다음 낱말)이 글 안에 이미 들어 있어서 사람이 이름표를 따로 붙이지 않아도 되고, 그 뒤 사람의 평가를 받아 한 번 더 다듬어집니다.</p>
+  </div>
+  <div class="think"><label><b>함께 생각해요.</b> 운동이나 실습에서 "반복할수록 틀린 만큼 고쳐 가는" 경험을 하나 적어 보세요.<textarea data-note="u6"></textarea></label></div>
+  <details class="more"><summary>더 해 보기</summary><p>신경망을 "처음부터"로 되돌린 뒤 연습 5회마다 "열매 하나 보여 주기"를 눌러, 가장 높은 답의 확률이 어떻게 변하는지 적어 보세요.</p></details>
+  <div class="check" data-c="u6"></div>
+</section>
+
+<!-- 7 -->
+<section class="unit" id="u7">
+  <header>
+    <span class="time">10분</span>
+    <h2>7. 정리와 퀴즈</h2>
+    <p class="goal"><b>이 단원을 마치면</b> 실제 상황을 보고 어떤 학습과 어떤 데이터 작업인지 고를 수 있어요.</p>
+  </header>
+  <div class="teacher"><b>교사용 안내</b><ul><li>비교표 2분, 퀴즈 5분, 활동 기록 제출 3분.</li><li>퀴즈는 낱말 뜻이 아니라 상황 적용 문제입니다. 틀린 문제는 해설을 함께 읽어 주세요.</li></ul></div>
+  <div class="scroll plain">
+    <table>
+      <tr><th></th><th>지도학습</th><th>비지도학습</th><th>강화학습</th></tr>
+      <tr><th>이름표(정답)</th><td>있음</td><td>없음</td><td>없음, 대신 보상</td></tr>
+      <tr><th>하는 일</th><td>이름이나 숫자 맞히기</td><td>비슷한 것끼리 묶기</td><td>보상이 큰 행동 찾기</td></tr>
+      <tr><th>밤이는</th><td>이름표 보고 열매 구별</td><td>섞인 열매 스스로 묶기</td><td>미로에서 길 찾기</td></tr>
+      <tr><th>현장 예</th><td>불량 판정, 판매량 예측</td><td>손님 유형 나누기</td><td>로봇 팔, 게임</td></tr>
+    </table>
+  </div>
+  <div class="act">
+    <h3>상황 퀴즈</h3>
+    <div id="quiz"></div>
+    <div class="react" id="rq" aria-live="polite"><span class="face"></span><p></p></div>
+    <div class="row"><button class="undo" id="quizReset">퀴즈 다시 풀기</button></div>
+  </div>
+  <div class="act">
+    <h3>내 활동 기록</h3>
+    <p>이름을 적고, 아래 글을 길게 눌러 모두 복사한 뒤 선생님이 알려 준 곳에 붙여 넣어 제출하세요.</p>
+    <div class="row"><label for="who">이름</label><input id="who" autocomplete="off"></div>
+    <textarea id="record" readonly aria-label="내 활동 기록"></textarea>
+    <div class="row"><button class="undo" id="wipe">저장된 기록 모두 지우기</button></div>
+  </div>
+</section>
+
+</main>
+
+<div class="pager"><div>
+  <button class="btn ghost" id="prev">이전</button>
+  <div class="set">
+    <button id="optBig" aria-pressed="false">글씨 크게</button>
+    <button id="optAll" aria-pressed="false">전체 보기</button>
+    <button id="optT" aria-pressed="false">교사용 안내</button>
+  </div>
+  <button class="btn" id="next">다음</button>
+</div></div>
+
+<script>
+(function(){
+"use strict";
+var $=function(s,r){return (r||document).querySelector(s)};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+var NAME={acorn:"도토리",chestnut:"밤",walnut:"호두",stone:"돌멩이",leaf:"낙엽",worm:"벌레 먹은 열매",empty:"빈 껍데기"};
+var TYPES=['acorn','chestnut','walnut'];
+
+/* ---------- 그림 ---------- */
+var ACORN='<ellipse cx="20" cy="25" rx="10" ry="12" fill="#d39a55"/><path d="M8 19 Q20 3 32 19 Z" fill="#7a4a21"/><rect x="19" y="3" width="2.5" height="6" rx="1" fill="#5c3716"/>';
+var INNER={
+ acorn:ACORN,
+ chestnut:'<path d="M20 5 C35 13 37 31 20 35 C3 31 5 13 20 5Z" fill="#8a3d1f"/><path d="M8 28 Q20 38 32 28 Q20 31 8 28Z" fill="#e0bf95"/>',
+ walnut:'<circle cx="20" cy="21" r="14" fill="#dcb47a"/><path d="M20 7 V35 M13 12 q4 4 0 8 q-4 4 0 9 M27 12 q-4 4 0 8 q4 4 0 9" stroke="#a67c45" stroke-width="1.6" fill="none" stroke-linecap="round"/>',
+ stone:'<path d="M8 26 L12 13 L24 9 L33 17 L31 29 L18 33Z" fill="#9aa1a8"/><path d="M14 16 L22 13" stroke="#c6ccd1" stroke-width="2" stroke-linecap="round"/>',
+ leaf:'<path d="M6 30 Q10 8 34 8 Q32 30 6 30Z" fill="#d9822b"/><path d="M8 29 L30 11" stroke="#8f4e12" stroke-width="1.5"/>',
+ worm:ACORN+'<circle cx="22" cy="27" r="3.5" fill="#3b2412"/><path d="M22 27 q5 -2 6 3 q1 4 6 2" stroke="#7fb24a" stroke-width="3" fill="none" stroke-linecap="round"/>',
+ empty:'<path d="M9 17 Q20 42 31 17" fill="none" stroke="#b08a5a" stroke-width="2.5" stroke-dasharray="4 3"/><path d="M8 19 Q20 3 32 19 Z" fill="#7a4a21" opacity=".55"/>',
+ fox:'<path d="M5 6 L15 15 H25 L35 6 L33 23 L20 36 L7 23Z" fill="#e2702a"/><path d="M7 23 L20 36 L33 23 L20 27Z" fill="#fff3e2"/><circle cx="14.5" cy="20" r="2" fill="#3b2412"/><circle cx="25.5" cy="20" r="2" fill="#3b2412"/><circle cx="20" cy="33" r="2.2" fill="#3b2412"/>',
+ tree:'<rect x="17" y="28" width="6" height="10" fill="#6b4423"/><path d="M20 2 L32 18 H26 L35 30 H5 L14 18 H8Z" fill="#2f6b34"/>'
+};
+var DIRT='<circle cx="12" cy="28" r="3" fill="#5a4630"/><circle cx="26" cy="18" r="2.5" fill="#5a4630"/><circle cx="24" cy="31" r="2" fill="#5a4630"/>';
+function nut(t,px,dirt){return '<svg viewBox="0 0 40 40" width="'+(px||40)+'" height="'+(px||40)+'" aria-hidden="true">'+INNER[t]+(dirt?DIRT:'')+'</svg>'}
+var E='#3b2412';
+var MOOD={
+ normal:['<circle cx="22.5" cy="29" r="2.7" fill="'+E+'"/><circle cx="37.5" cy="29" r="2.7" fill="'+E+'"/>','<path d="M26 41 q4 3.5 8 0" stroke="'+E+'" stroke-width="2" fill="none" stroke-linecap="round"/>'],
+ happy:['<path d="M19 30 q3.5 -5.5 7 0 M34 30 q3.5 -5.5 7 0" stroke="'+E+'" stroke-width="2.4" fill="none" stroke-linecap="round"/>','<path d="M25 40 q5 7 10 0Z" fill="#7a2f2a"/>'],
+ sad:['<circle cx="22.5" cy="30" r="2.6" fill="'+E+'"/><circle cx="37.5" cy="30" r="2.6" fill="'+E+'"/><path d="M18 24 l8 -2 M42 24 l-8 -2" stroke="'+E+'" stroke-width="1.8" stroke-linecap="round"/>','<path d="M26 44 q4 -4 8 0" stroke="'+E+'" stroke-width="2" fill="none" stroke-linecap="round"/>'],
+ wow:['<circle cx="22.5" cy="28" r="3.7" fill="'+E+'"/><circle cx="37.5" cy="28" r="3.7" fill="'+E+'"/><circle cx="23.7" cy="26.7" r="1.2" fill="#fff"/><circle cx="38.7" cy="26.7" r="1.2" fill="#fff"/>','<ellipse cx="30" cy="43" rx="2.6" ry="3.2" fill="#7a2f2a"/>'],
+ think:['<circle cx="22.5" cy="29" r="2.7" fill="'+E+'"/><path d="M34 29 h7" stroke="'+E+'" stroke-width="2.4" stroke-linecap="round"/>','<path d="M27 43 h7" stroke="'+E+'" stroke-width="2" stroke-linecap="round"/>']
+};
+function sq(who,mood,px){var t=who==='t',fur=t?'#b9743a':'#dba469',dark=t?'#8a5326':'#b9803f',m=MOOD[mood]||MOOD.normal;
+  return '<svg viewBox="0 0 64 62" width="'+px+'" height="'+Math.round(px*62/64)+'" aria-hidden="true">'
+  +'<path d="M44 54 C66 50 64 12 46 14 C56 22 50 40 40 48Z" fill="'+dark+'"/>'
+  +'<path d="M12 20 L16 5 L26 15Z M48 20 L44 5 L34 15Z" fill="'+dark+'"/>'
+  +'<ellipse cx="30" cy="33" rx="21" ry="19" fill="'+fur+'"/><ellipse cx="30" cy="40" rx="14" ry="10.5" fill="#f8e8cf"/>'
+  +'<circle cx="14.5" cy="38" r="3.6" fill="#f08a8a" opacity=".55"/><circle cx="45.5" cy="38" r="3.6" fill="#f08a8a" opacity=".55"/>'
+  +'<ellipse cx="30" cy="36" rx="2.6" ry="2" fill="'+E+'"/>'+m[0]+m[1]
+  +(t?'<path d="M13 49 Q30 60 47 49 L45 55 Q30 64 15 55Z" fill="#c8394b"/>':'<path d="M30 15 q-9 -9 1 -13 q7 6 -1 13Z" fill="#5fa046"/>')
+  +'</svg>'}
+function say(id,mood,text){var box=$('#'+id);if(!box)return;var f=$('.face',box);f.innerHTML=sq('b',mood,54);f.classList.remove('hop');void f.offsetWidth;if(mood==='happy'||mood==='wow')f.classList.add('hop');$('p',box).textContent=text}
+$$('[data-face]').forEach(function(el){var a=el.dataset.face.split(',');el.innerHTML=sq(a[0],a[1],54)});
+$('#duo').innerHTML=sq('t','happy',150)+sq('b','wow',96);
+
+/* ---------- 저장 ---------- */
+var KEY='squirrel-class-v2',S={u:0,done:{},notes:{},quiz:null,big:false,all:false,teacher:false,who:''};
+try{var raw=localStorage.getItem(KEY);if(raw){var o=JSON.parse(raw);Object.keys(S).forEach(function(k){if(o&&o[k]!==undefined&&o[k]!==null)S[k]=o[k]})}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
+/* ---------- 단원 이동, 도장, 보기 설정 ---------- */
+var UNITS=[['u0','시작'],['u1','1 인공지능'],['u2','2 데이터'],['u3','3 지도학습'],['rest','쉬는 시간'],['u4','4 비지도학습'],['u5','5 강화학습'],['u6','6 반복학습'],['u7','7 정리']];
+var STAMPS=['u1','u2','u3','u4','u5','u6','u7'];
+var nav=$('#nav');
+nav.innerHTML=UNITS.map(function(u,i){return '<button data-i="'+i+'"><span class="st">'+nut('acorn',18)+'</span>'+u[1]+'</button>'}).join('');
+function refresh(){var n=0;$$('button',nav).forEach(function(b,i){var id=UNITS[i][0];b.classList.toggle('on',i===S.u);b.classList.toggle('done',!!S.done[id]);if(i===S.u)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+  STAMPS.forEach(function(k){if(S.done[k])n++});$('#bar').style.width=(n/7*100)+'%';
+  $('#prev').disabled=S.u===0;$('#next').disabled=S.u===UNITS.length-1;
+  $('#next').textContent=S.u<UNITS.length-1?'다음: '+UNITS[S.u+1][1]:'끝';
+  document.body.classList.toggle('paged',!S.all);document.body.classList.toggle('t-on',S.teacher);
+  document.documentElement.style.setProperty('--z',S.big?'1.25':'1');
+  $('#optBig').setAttribute('aria-pressed',S.big);$('#optAll').setAttribute('aria-pressed',S.all);$('#optT').setAttribute('aria-pressed',S.teacher);
+  drawRecord()}
+function go(i,scroll){S.u=Math.max(0,Math.min(UNITS.length-1,i));$$('.unit').forEach(function(u){u.classList.toggle('cur',u.id===UNITS[S.u][0])});refresh();save();
+  var b=$$('button',nav)[S.u];if(b&&b.scrollIntoView)b.scrollIntoView({block:'nearest',inline:'center'});
+  if(scroll!==false){if(S.all){var el=$('#'+UNITS[S.u][0]);if(el)el.scrollIntoView()}else window.scrollTo(0,0)}}
+nav.addEventListener('click',function(e){var b=e.target.closest('button');if(b)go(+b.dataset.i)});
+$('#prev').addEventListener('click',function(){go(S.u-1)});$('#next').addEventListener('click',function(){go(S.u+1)});
+$('#optBig').addEventListener('click',function(){S.big=!S.big;refresh();save()});
+$('#optAll').addEventListener('click',function(){S.all=!S.all;go(S.u)});
+$('#optT').addEventListener('click',function(){S.teacher=!S.teacher;refresh();save()});
+function stamp(k){if(S.done[k])return;S.done[k]=1;save();refresh()}
+
+/* ---------- 생각 적기 ---------- */
+$$('textarea[data-note]').forEach(function(t){t.value=S.notes[t.dataset.note]||'';t.addEventListener('input',function(){S.notes[t.dataset.note]=t.value;save()})});
+
+/* ---------- 단원 확인 문제 ---------- */
+var CHECKS={
+ u1:['다음 중 머신러닝이 아닌 것은?',['사람이 "30도가 넘으면 켜라"고 적어 둔 에어컨','메일을 많이 보고 스팸을 거르게 된 프로그램','사진을 많이 보고 고양이를 찾게 된 프로그램'],0,'사람이 규칙을 직접 적어 준 것은 머신러닝이 아니에요. 나머지 둘은 데이터를 보고 스스로 규칙을 찾았어요.'],
+ u2:['설문 결과에서 나이 칸이 빈 응답과, 같은 사람이 두 번 낸 응답을 지웠어요. 어떤 단계일까요?',['수집','정제','라벨링'],1,'빈 값(결측치)과 중복을 걸러 내는 일은 정제예요.'],
+ u3:['"정상/불량" 표시가 붙은 부품 사진 3천 장으로 배운 뒤, 새 부품을 정상 또는 불량으로 판정해요. 무엇일까요?',['지도학습의 분류','지도학습의 회귀','비지도학습의 군집화'],0,'정답이 붙은 데이터로 배우고, 숫자가 아닌 이름(정상/불량)을 맞히니까 분류예요.'],
+ u4:['이름표가 없는 손님 구매 기록을 비슷한 손님끼리 나눴어요. 무엇일까요?',['지도학습','비지도학습','강화학습'],1,'정답 없이 비슷한 것끼리 묶었으니 비지도학습(군집화)이에요.'],
+ u5:['로봇 팔이 물건을 잘 집으면 +1점, 떨어뜨리면 -1점을 받으며 연습해요. 여기서 에이전트는?',['물건','점수','로봇 팔'],2,'배우는 주인공인 로봇 팔이 에이전트예요. 점수는 보상, 물건과 작업대는 환경이에요.'],
+ u6:['연습 문제는 100점인데 처음 보는 시험 문제는 50점이에요. 이 상태를 무엇이라 할까요?',['과적합','군집화','결측치'],0,'연습 데이터만 외워서 새 문제를 못 푸는 상태가 과적합이에요.']
+};
+$$('.check').forEach(function(box){var k=box.dataset.c,c=CHECKS[k];
+  box.innerHTML='<h3>확인 문제: 맞히면 도토리 도장</h3><div class="q"><p>'+c[0]+'</p><div class="opts">'+c[1].map(function(o,j){return '<button data-j="'+j+'">'+o+'</button>'}).join('')+'</div><div class="why" aria-live="polite"></div></div>';
+  function solved(pop){$$('button',box).forEach(function(b,j){b.disabled=true;if(j===c[2])b.classList.add('right')});$('.why',box).innerHTML='<span class="'+(pop?'stamp':'')+'" style="vertical-align:middle">'+nut('acorn',30)+'</span> 도장 획득! '+c[3]}
+  if(S.done[k])solved(false);
+  box.addEventListener('click',function(e){var b=e.target.closest('button');if(!b||b.disabled)return;
+    if(+b.dataset.j===c[2]){solved(true);stamp(k)}else{b.classList.add('wrong');b.disabled=true;$('.why',box).textContent='다시 생각해 볼까요? 위 활동을 떠올려 보세요.'}})});
+
+/* ---------- 공통 데이터와 그래프 ---------- */
+var CENTER={acorn:[3.2,4.6],chestnut:[6,8],walnut:[8,2.8]};
+function makeNuts(per,seed){var r=rng(seed),out=[];TYPES.forEach(function(t){for(var i=0;i<per;i++){
+  var x=CENTER[t][0]+(r()+r()-1)*1.5,y=CENTER[t][1]+(r()+r()-1)*1.5;
+  out.push({t:t,x:Math.min(9.8,Math.max(1.2,x)),y:Math.min(9.8,Math.max(1.2,y))})}});return out}
+var PX=function(x){return 40+(x-1)/9*260},PY=function(y){return 220-(y-1)/9*200};
+function axes(xl,yl){return '<line x1="34" y1="226" x2="306" y2="226" stroke="var(--muted)" stroke-width="2"/><line x1="34" y1="226" x2="34" y2="14" stroke="var(--muted)" stroke-width="2"/><text x="170" y="244" text-anchor="middle">'+xl+'</text><text x="16" y="120" text-anchor="middle" transform="rotate(-90 16 120)">'+yl+'</text>'}
+function nutAt(t,x,y){return '<g transform="translate('+(x-9)+','+(y-9)+') scale(.45)">'+INNER[t]+'</g>'}
+function knnPredict(tr,q,key){var near=tr.map(function(n){return {n:n,d:Math.hypot(n.x-q.x,n.y-q.y)}}).sort(function(a,b){return a.d-b.d}).slice(0,Math.min(3,tr.length));
+  var cnt={};near.forEach(function(o){cnt[o.n[key]]=(cnt[o.n[key]]||0)+1});var best=near[0].n[key];Object.keys(cnt).forEach(function(t){if(cnt[t]>cnt[best])best=t});
+  return {best:best,votes:cnt[best],near:near}}
+function lineChart(svg,vals,ymax,xl,yl,minN){var h='<line x1="30" y1="122" x2="312" y2="122" stroke="var(--muted)" stroke-width="2"/><line x1="30" y1="122" x2="30" y2="10" stroke="var(--muted)" stroke-width="2"/><text x="170" y="143" text-anchor="middle">'+xl+'</text><text x="36" y="20">'+yl+'</text>';
+  var n=Math.max(minN,vals.length-1);var pts=vals.map(function(v,i){return (30+i/n*280).toFixed(1)+','+(122-Math.min(1,v/ymax)*100).toFixed(1)});
+  if(pts.length>1)h+='<polyline points="'+pts.join(' ')+'" fill="none" stroke="var(--c2)" stroke-width="2.5"/>';
+  pts.forEach(function(p){var a=p.split(',');h+='<circle cx="'+a[0]+'" cy="'+a[1]+'" r="3" fill="var(--c2)"/>'});svg.innerHTML=h}
+
+/* ---------- 1. 포함 관계 ---------- */
+var RING={
+ ai:['인공지능','사람처럼 배우고 생각(추론)하도록 만든 기술 전체를 말해요.','예: 길 찾기, 번역, 대화하는 프로그램'],
+ ml:['머신러닝 (기계학습)','사람이 규칙을 하나하나 써 주지 않아도, 기계가 데이터를 보고 스스로 규칙을 찾는 방법이에요. 기계가 학습하니까 기계학습이에요.','예: 스팸 메일 거르기, 영화 추천, 불량 검사'],
+ dl:['딥러닝','사람 두뇌의 신경세포 연결을 본뜬 인공 신경망을 여러 층으로 깊게 쌓아 배우는, 머신러닝의 한 방법이에요.','예: 사진 속 물체 알아보기, 목소리 알아듣기, 대화형 인공지능']
+};
+function showRing(k){$$('.ring>button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.k===k)});var d=RING[k];$('#ringInfo').innerHTML='<h3>'+d[0]+'</h3><p>'+d[1]+'</p><p class="hint">'+d[2]+'</p>'}
+$$('.ring>button').forEach(function(b){b.addEventListener('click',function(){showRing(b.dataset.k)})});showRing('ai');
+
+/* ---------- 2. 데이터 준비 ---------- */
+var stepOk={};
+function showStep(i){$$('#steps button').forEach(function(x){x.classList.toggle('on',+x.dataset.s===i);x.classList.toggle('ok',!!stepOk[x.dataset.s])});$$('.panel').forEach(function(p){p.classList.toggle('on',+p.dataset.p===i)});if(i===1)drawClean();if(i===3)drawLabel()}
+function okStep(i){stepOk[i]=1;$$('#steps button')[i].classList.add('ok')}
+$('#steps').addEventListener('click',function(e){var b=e.target.closest('button');if(b)showStep(+b.dataset.s)});
+$$('[data-go]').forEach(function(b){b.addEventListener('click',function(){showStep(+b.dataset.go);$('#steps').scrollIntoView({block:'nearest'})})});
+
+var nine=makeNuts(3,7);                       // 좋은 열매 9개 (번호 0~8)
+var testSet=makeNuts(4,99).filter(function(n,i){return i!==3&&i!==7}); // 시험용 10개
+// 번호 9~14: 못 쓰는 것. 정제하지 않으면 겉모습이 닮은 열매로 잘못 배웁니다.
+var JUNK={9:{t:'stone',bad:'stone',x:8.0,y:2.9,lab:'chestnut'},10:{t:'stone',bad:'stone',x:7.7,y:2.5,lab:'chestnut'},11:{t:'leaf',bad:'leaf',x:6.1,y:8.1,lab:'acorn'},12:{t:'worm',bad:'worm',x:5.8,y:7.7,lab:'acorn'},13:{t:'empty',bad:'empty',x:1,y:1,lab:'acorn'},14:{t:'acorn',bad:'dup',x:nine[0].x,y:nine[0].y,lab:'acorn'}};
+function item(i){return i<9?{t:nine[i].t,bad:null}:JUNK[i]}
+var ORDER=[9,0,12,4,14,8,10,3,13,1,5,11,6,2,7],JIT=[[-8,6],[10,-8],[0,10],[-10,-6],[8,8],[6,-10],[-6,0],[12,6],[-12,8],[0,-8],[10,0],[-8,-10],[4,10],[-4,-4],[8,-6]];
+// ① 수집
+var forest=$('#forest'),picked=0;
+(function(){var h='<span class="tree" style="left:4%;top:8%">'+nut('tree',90)+'</span><span class="tree" style="left:42%;top:30%">'+nut('tree',110)+'</span><span class="tree" style="right:3%;top:2%">'+nut('tree',96)+'</span>';
+  ORDER.forEach(function(i,k){var it=item(i);h+='<button data-i="'+i+'" style="transform:translate('+JIT[k][0]+'px,'+JIT[k][1]+'px)" aria-label="'+NAME[it.t]+' 줍기">'+nut(it.t,44,true)+'</button>'});
+  forest.innerHTML=h;say('r0','normal','숲에 떨어진 것을 눌러서 주워 주세요. (0 / 15)')})();
+function pick(b){if(b.classList.contains('gone'))return;b.classList.add('gone');picked++;var it=item(+b.dataset.i);
+  $('#basket0').insertAdjacentHTML('beforeend','<span class="chip pop">'+nut(it.t,36,true)+'</span>');
+  if(picked===15){okStep(0);say('r0','wow','다 모았어요! 그런데 열매가 아닌 것도 섞인 것 같아요.')}else say('r0','normal','영차! ('+picked+' / 15)')}
+forest.addEventListener('click',function(e){var b=e.target.closest('button');if(b)pick(b)});
+$('#collectAll').addEventListener('click',function(){$$('button',forest).forEach(pick)});
+// ② 정제
+var removed={};
+var CLEAN={stone:'돌멩이는 열매가 아니에요. 상관없는 데이터를 뺐어요.',leaf:'낙엽도 상관없는 데이터예요. 뺐어요.',worm:'벌레 먹은 열매는 잘못된 데이터(오류)예요. 뺐어요.',empty:'속이 빈 껍데기는 값이 비어 있는 데이터(결측치)예요. 뺐어요.',dup:'같은 열매를 두 번 셌네요. 중복 데이터를 뺐어요.'};
+function junkLeft(){var n=0;for(var i=9;i<15;i++)if(!removed[i])n++;return n}
+function drawClean(){$('#basket1').innerHTML=ORDER.filter(function(i){return !removed[i]}).map(function(i){var it=item(i);return '<button class="chip" data-i="'+i+'" aria-label="'+(it.bad==='dup'?'두 번 센 도토리':NAME[it.t])+'">'+nut(it.t,38)+(it.bad==='dup'?'<span class="dup">중복</span>':'')+'</button>'}).join('');
+  if(!$('#r1 p').textContent)say('r1','think','골라낼 것이 '+junkLeft()+'개 있어요.')}
+$('#basket1').addEventListener('click',function(e){var c=e.target.closest('.chip');if(!c)return;var i=+c.dataset.i,it=item(i);
+  if(!it.bad){c.classList.remove('shake');void c.offsetWidth;c.classList.add('shake');say('r1','think','이건 멀쩡한 열매예요. 남겨 두세요.');return}
+  removed[i]=1;c.remove();var l=junkLeft();if(!l){okStep(1);say('r1','happy',CLEAN[it.bad]+' 바구니가 깨끗해졌어요!')}else say('r1','normal',CLEAN[it.bad]+' (남은 것 '+l+'개)')});
+$('#cleanReset').addEventListener('click',function(){removed={};$('#r1 p').textContent='';drawClean()});
+// ③ 가공
+var sizes=[30,52,38,46,26,50,34,44,28];
+function drawProc(t){$('#basket2').innerHTML=nine.map(function(n,i){return '<span class="chip">'+nut(n.t,t?40:sizes[i],!t)+'</span>'}).join('')}
+drawProc(false);
+$('#tidy').addEventListener('click',function(){drawProc(true);$('#measure').disabled=false;$('#measureHint').textContent='이제 잴 수 있어요.'});
+$('#measure').addEventListener('click',function(){okStep(2);$('#measureHint').textContent='';$('#featTable').innerHTML='<table><tr><th>번호</th><th>열매</th><th>크기</th><th>색 진하기</th></tr>'+nine.map(function(n,i){return '<tr><td>'+(i+1)+'</td><td>'+nut(n.t,26)+'</td><td>'+n.x.toFixed(1)+'</td><td>'+n.y.toFixed(1)+'</td></tr>'}).join('')+'</table>'});
+// ④ 라벨링 (틀린 이름표도 붙습니다)
+var LORD=[4,0,8,2,6,1,5,3,7],labels={};
+function nextUnl(){for(var j=0;j<9;j++)if(!labels[LORD[j]])return LORD[j];return -1}
+function wrongCount(){var w=0;for(var i=0;i<9;i++)if(labels[i]&&labels[i]!==nine[i].t)w++;return w}
+function drawLabel(){var cur=nextUnl();$('#basket3').innerHTML=LORD.map(function(k){return '<span class="chip'+(k===cur?' cur':'')+'">'+nut(nine[k].t,38)+(labels[k]?'<span class="tag">'+NAME[labels[k]]+'</span>':'')+'</span>'}).join('');
+  var n=Object.keys(labels).length;
+  if(n===9){okStep(3);var w=wrongCount();say('r3',w?'think':'happy',w?'이름표를 다 붙였어요. 그런데 '+w+'개는 실제와 달라요. 이대로 배우면 어떻게 될까요? ⑤에서 확인해 봐요.':'이름표를 모두 정확하게 붙였어요!')}
+  else say('r3','normal',n?'이름표를 붙였어요. ('+n+' / 9)':'노란 테두리 열매부터 이름을 골라 주세요.')}
+$('#labelBtns').innerHTML=TYPES.map(function(t){return '<button class="btn" data-t="'+t+'">'+NAME[t]+'</button>'}).join('')+'<button class="btn ghost" data-t="auto">남은 열매는 정답대로 붙이기</button><button class="undo" data-t="reset">이름표 모두 떼기</button>';
+$('#labelBtns').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var t=b.dataset.t;
+  if(t==='reset')labels={};else if(t==='auto'){for(var i=0;i<9;i++)if(!labels[i])labels[i]=nine[i].t}
+  else{var c=nextUnl();if(c>=0)labels[c]=t}
+  drawLabel()});
+drawLabel();
+$('#photo').innerHTML=[['acorn',12,50],['walnut',45,22],['chestnut',76,55]].map(function(a){return '<button style="left:'+a[1]+'%;top:'+a[2]+'%" aria-label="열매에 상자 치기"><span class="tag">'+NAME[a[0]]+'</span>'+nut(a[0],44)+'</button>'}).join('');
+$('#photo').addEventListener('click',function(e){var b=e.target.closest('button');if(b)b.classList.toggle('boxed')});
+// ⑤ 가르치기: 실제로 가까운 이웃 3개 방식으로 학습하고 시험합니다
+function basket(kind){var tr=[],junk=0,wrong=0,i;
+  if(kind==='bias'){var b=makeNuts(7,5);b.slice(0,7).concat([b[7],b[14]]).forEach(function(n){tr.push({x:n.x,y:n.y,lab:n.t})});return {tr:tr,junk:0,wrong:0}}
+  for(i=0;i<9;i++){var lab=kind==='mine'?labels[i]:nine[i].t;if(!lab)continue;if(lab!==nine[i].t)wrong++;tr.push({x:nine[i].x,y:nine[i].y,lab:lab})}
+  if(kind!=='clean')for(i=9;i<15;i++){if(kind==='mine'&&removed[i])continue;junk++;tr.push({x:JUNK[i].x,y:JUNK[i].y,lab:JUNK[i].lab})}
+  return {tr:tr,junk:junk,wrong:wrong}}
+var BNAME={mine:'내 바구니',clean:'깨끗한 바구니',dirty:'정제 안 한 바구니',bias:'도토리만 잔뜩 모은 바구니'};
+function teach(kind){var b=basket(kind);
+  if(kind==='mine'&&!Object.keys(labels).length){$('#marks').innerHTML='';say('r4','think','이름표가 붙은 열매가 없어서 배울 수가 없어요. ④에서 이름표를 먼저 붙여 주세요.');return}
+  var s=0;$('#marks').innerHTML=testSet.map(function(q){var p=knnPredict(b.tr,q,'lab').best,ok=p===q.t;if(ok)s++;return '<span class="'+(ok?'o':'x')+'">'+nut(q.t,30)+'<br>'+NAME[p]+' '+(ok?'O':'X')+'</span>'}).join('');
+  okStep(4);var why=[];if(b.junk)why.push('못 쓰는 것 '+b.junk+'개가 섞여 있었어요');if(b.wrong)why.push('이름표 '+b.wrong+'개가 틀렸어요');if(kind==='bias')why.push('도토리만 많이 봐서 다른 열매를 잘 몰라요');
+  say('r4',s>=9?'happy':s>=7?'normal':'sad',BNAME[kind]+': 시험용 10개 중 '+s+'개 정답.'+(why.length?' '+why.join(', ')+'.':' 데이터가 깨끗하니 잘 배웠어요!'))}
+$$('[data-teach]').forEach(function(b){b.addEventListener('click',function(){teach(b.dataset.teach)})});
+say('r4','normal','어떤 바구니로 배울까요?');
+
+/* ---------- 3. 지도학습 ---------- */
+var train=makeNuts(8,21),knn=$('#knn');
+$('#knnLegend').innerHTML=TYPES.map(function(t){return '<span>'+nut(t,24)+NAME[t]+'</span>'}).join('');
+function drawKnn(q){var h=axes('크기가 클수록 오른쪽','색이 진할수록 위');
+  if(q){var r=knnPredict(train,q,'t');r.near.forEach(function(o){h+='<line x1="'+PX(q.x)+'" y1="'+PY(q.y)+'" x2="'+PX(o.n.x)+'" y2="'+PY(o.n.y)+'" stroke="var(--berry)" stroke-width="2" stroke-dasharray="4 3"/>'});
+    if(r.votes===1)say('rk','think','이웃 3개가 모두 달라요. 제일 가까운 걸 따라서… '+NAME[r.best]+'? 자신이 없어요.');
+    else if(r.votes===2)say('rk','normal','이웃 3개 중 2개가 '+NAME[r.best]+'. 아마 '+NAME[r.best]+'일 거예요.');
+    else say('rk','happy','이웃 3개가 모두 '+NAME[r.best]+'. 이건 '+NAME[r.best]+'!')}
+  train.forEach(function(n){h+=nutAt(n.t,PX(n.x),PY(n.y))});
+  if(q)h+='<circle cx="'+PX(q.x)+'" cy="'+PY(q.y)+'" r="11" fill="var(--gold)" stroke="var(--ink)" stroke-width="2"/><text x="'+PX(q.x)+'" y="'+(PY(q.y)+5)+'" text-anchor="middle" style="fill:#3a2706;font-size:15px">?</text>';
+  knn.innerHTML=h}
+knn.addEventListener('click',function(e){var r=knn.getBoundingClientRect();var sx=(e.clientX-r.left)/r.width*320,sy=(e.clientY-r.top)/r.height*250;
+  drawKnn({x:Math.min(10,Math.max(1,1+(sx-40)/260*9)),y:Math.min(10,Math.max(1,1+(220-sy)/200*9))})});
+$('#knnRand').addEventListener('click',function(){drawKnn({x:1.5+Math.random()*8,y:1.5+Math.random()*8})});
+drawKnn(null);say('rk','normal','새 열매를 놓아 주세요. 제가 맞혀 볼게요.');
+
+var RX=[1,2,3,4,5,6,7,8,9],RYv=[2.6,3.4,6.8,7.5,10.9,11.4,14.8,15.5,18.6];
+var FX=function(x){return 40+x/10*260},FY=function(y){return 220-y/24*200};
+function drawFit(svg,w){var h=axes('열매 크기','무게(g)');var xe=w*10>24?24/w:10;
+  RX.forEach(function(x,i){h+='<line x1="'+FX(x)+'" y1="'+FY(RYv[i])+'" x2="'+FX(x)+'" y2="'+FY(Math.min(24,w*x))+'" stroke="var(--berry)" stroke-width="1.8" stroke-dasharray="3 3"/>'});
+  h+='<line x1="'+FX(0)+'" y1="'+FY(0)+'" x2="'+FX(xe)+'" y2="'+FY(w*xe)+'" stroke="var(--c2)" stroke-width="3" stroke-linecap="round"/>';
+  RX.forEach(function(x,i){h+=nutAt('acorn',FX(x),FY(RYv[i]))});svg.innerHTML=h}
+function mae(w){return RX.reduce(function(s,x,i){return s+Math.abs(w*x-RYv[i])},0)/RX.length}
+function mse(w){return RX.reduce(function(s,x,i){return s+Math.pow(w*x-RYv[i],2)},0)/RX.length}
+function fit1(){var w=+$('#wSlider').value;drawFit($('#fit1'),w);var e=mae(w);
+  say('rf',e<0.8?'happy':e<2.5?'normal':'think','평균 오차 '+e.toFixed(1)+'g. '+(e<0.8?'거의 딱 맞아요!':e<2.5?'조금만 더 움직여 봐요.':'빨간 점선(틀린 만큼)이 길어요. 줄여 주세요.'))}
+$('#wSlider').addEventListener('input',fit1);fit1();
+
+/* ---------- 쉬는 시간 ---------- */
+var ct=null,sec=600;
+function showClock(){$('#clock').textContent=Math.floor(sec/60)+':'+('0'+sec%60).slice(-2)}
+function beep(){try{var A=window.AudioContext||window.webkitAudioContext,a=new A(),o=a.createOscillator(),g=a.createGain();o.frequency.value=880;g.gain.value=.15;o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+.6)}catch(e){}}
+$('#clockBtn').addEventListener('click',function(){var b=this,c=$('#clock');c.classList.remove('end');
+  if(ct){clearInterval(ct);ct=null;sec=600;showClock();b.textContent='쉬는 시간 시작';return}
+  sec=600;showClock();b.textContent='쉬는 시간 끝내기';
+  ct=setInterval(function(){sec--;showClock();if(sec<=0){clearInterval(ct);ct=null;c.textContent='다시 시작해요!';c.classList.add('end');beep();b.textContent='쉬는 시간 시작'}},1000)});
+
+/* ---------- 4. 비지도학습 ---------- */
+var kmPts=makeNuts(9,55),km;
+function shape(i,x,y,c){if(i===1)return '<rect x="'+(x-5.5)+'" y="'+(y-5.5)+'" width="11" height="11" fill="'+c+'"/>';
+  if(i===2)return '<path d="M'+x+' '+(y-7)+' L'+(x+7)+' '+(y+5.5)+' L'+(x-7)+' '+(y+5.5)+'Z" fill="'+c+'"/>';
+  if(i===3)return '<path d="M'+x+' '+(y-7.5)+' L'+(x+7.5)+' '+y+' L'+x+' '+(y+7.5)+' L'+(x-7.5)+' '+y+'Z" fill="'+c+'"/>';
+  return '<circle cx="'+x+'" cy="'+y+'" r="6" fill="'+c+'"/>'}
+function kmInit(k){var idx=[];while(idx.length<k){var j=Math.floor(Math.random()*kmPts.length);if(idx.indexOf(j)<0)idx.push(j)}
+  km={k:k,cent:idx.map(function(j){return {x:kmPts[j].x,y:kmPts[j].y}}),as:kmPts.map(function(){return -1}),phase:'assign',done:false};
+  $('#kmStep').disabled=false;drawKm();say('rm','normal','깃발 '+k+'개를 아무 데나 꽂았어요. "다음 단계"를 눌러 주세요.')}
+function drawKm(){var h=axes('크기가 클수록 오른쪽','색이 진할수록 위');
+  kmPts.forEach(function(p,i){var a=km.as[i];h+=a<0?'<circle cx="'+PX(p.x)+'" cy="'+PY(p.y)+'" r="6" fill="var(--muted)"/>':shape(a,PX(p.x),PY(p.y),'var(--c'+(a+1)+')')});
+  km.cent.forEach(function(c,i){h+='<text x="'+PX(c.x)+'" y="'+(PY(c.y)+9)+'" text-anchor="middle" style="font-size:26px;fill:var(--c'+(i+1)+');stroke:var(--ink);stroke-width:.9">★</text>'});
+  $('#km').innerHTML=h}
+$('#kmStep').addEventListener('click',function(){if(km.done)return;
+  if(km.phase==='assign'){var na=kmPts.map(function(p){var b=0,bd=1e9;km.cent.forEach(function(c,i){var d=Math.hypot(p.x-c.x,p.y-c.y);if(d<bd){bd=d;b=i}});return b});
+    var same=na.every(function(v,i){return v===km.as[i]});km.as=na;
+    if(same){km.done=true;$('#kmStep').disabled=true;say('rm','happy','더 이상 바뀌지 않아요. 묶기 끝!')}
+    else{km.phase='move';say('rm','normal','열매를 가장 가까운 깃발 쪽으로 나눴어요.')}}
+  else{km.cent.forEach(function(c,i){var m=kmPts.filter(function(p,j){return km.as[j]===i});if(m.length){c.x=m.reduce(function(s,p){return s+p.x},0)/m.length;c.y=m.reduce(function(s,p){return s+p.y},0)/m.length}});
+    km.phase='assign';say('rm','normal','깃발을 각 묶음의 한가운데로 옮겼어요.')}
+  drawKm()});
+$('#kmReset').addEventListener('click',function(){kmInit(km.k)});
+$$('#u4 [data-k]').forEach(function(b){b.addEventListener('click',function(){kmInit(+b.dataset.k)})});
+kmInit(3);
+
+/* ---------- 5. 강화학습 ---------- */
+var N=5,START=20,GOAL=4,FOX=[11,18,2],ARW=['↑','→','↓','←'],Q,eps,hist,pos,wins,mood5;
+function rlInit(){Q=[];for(var i=0;i<25;i++)Q.push([0,0,0,0]);eps=0;hist=[];wins=0;pos=START;mood5='normal';drawMaze();drawRl();say('rr','normal','아직 길을 하나도 몰라요. 도전시켜 주세요.')}
+function argmax(a){var m=Math.max.apply(null,a),c=[];a.forEach(function(v,i){if(v===m)c.push(i)});return c[Math.floor(Math.random()*c.length)]}
+function move(s,a){var x=s%N,y=Math.floor(s/N);if(a===0&&y>0)y--;if(a===1&&x<N-1)x++;if(a===2&&y<N-1)y++;if(a===3&&x>0)x--;return y*N+x}
+function episode(learn){var s=START,traj=[s],e=learn?Math.max(0.05,0.6*Math.pow(0.9,eps)):0,res='timeout';
+  for(var t=0;t<40;t++){var a=Math.random()<e?Math.floor(Math.random()*4):argmax(Q[s]);var s2=move(s,a),r=-1,end=false;
+    if(s2===GOAL){r=10;end=true;res='goal'}else if(FOX.indexOf(s2)>=0){r=-10;end=true;res='fox'}
+    if(learn)Q[s][a]+=0.5*(r+(end?0:0.9*Math.max.apply(null,Q[s2]))-Q[s][a]);
+    s=s2;traj.push(s);if(end)break}
+  if(learn){eps++;hist.push(res==='goal'?traj.length-1:40);if(res==='goal')wins++}
+  return {traj:traj,res:res}}
+function drawMaze(){var h='';for(var i=0;i<25;i++){var c=i===pos?sq('b',mood5,40):i===GOAL?nut('chestnut',40):FOX.indexOf(i)>=0?nut('fox',40):'';
+    var arrow='';if(i!==pos&&i!==GOAL&&FOX.indexOf(i)<0&&Q[i].some(function(v){return v!==0})){var m=Math.max.apply(null,Q[i]);arrow='<small>'+ARW[Q[i].indexOf(m)]+'</small>'}
+    h+='<div class="'+(i===pos?'me':'')+'">'+c+arrow+'</div>'}
+  $('#maze').innerHTML=h}
+function drawRl(){lineChart($('#rlChart'),hist,40,'도전 횟수','걸음 수 (실패는 40)',20)}
+function setBusy(b){['rl1','rl20','rlGo','rlReset'].forEach(function(id){$('#'+id).disabled=b})}
+function animate(ep,done){setBusy(true);mood5='normal';var i=0;var t=setInterval(function(){pos=ep.traj[i];if(i===ep.traj.length-1)mood5=ep.res==='goal'?'happy':'sad';drawMaze();i++;if(i>=ep.traj.length){clearInterval(t);setBusy(false);done()}},130)}
+var RES={goal:'밤에 도착했어요!',fox:'여우를 만났어요. 벌점!',timeout:'헤매다가 지쳤어요.'};
+function rmood(r){return r==='goal'?'happy':'sad'}
+$('#rl1').addEventListener('click',function(){var ep=episode(true);animate(ep,function(){drawRl();say('rr',rmood(ep.res),eps+'번째 도전: '+RES[ep.res]+' ('+(ep.traj.length-1)+'걸음)')})});
+$('#rl20').addEventListener('click',function(){for(var i=0;i<20;i++)episode(true);pos=START;mood5='normal';drawMaze();drawRl();say('rr','normal','지금까지 '+eps+'번 도전해서 '+wins+'번 성공했어요. 화살표는 제가 좋다고 배운 방향이에요.')});
+$('#rlGo').addEventListener('click',function(){var ep=episode(false);animate(ep,function(){say('rr',rmood(ep.res),'배운 대로 가 보니: '+RES[ep.res]+' ('+(ep.traj.length-1)+'걸음)')})});
+$('#rlReset').addEventListener('click',rlInit);rlInit();
+
+/* ---------- 6. 반복학습 ---------- */
+var gw,gh;
+function gdDraw(){drawFit($('#fit2'),gw);lineChart($('#lossChart'),gh,gh[0],'연습 횟수','오차',10);var e=mae(gw);
+  say('rg',e<0.8?'happy':'normal','연습 '+(gh.length-1)+'회, 평균 오차 '+e.toFixed(1)+'g.'+(e<0.8?' 이제 거의 안 틀려요!':''))}
+function gdInit(){gw=0.3;gh=[mse(gw)];gdDraw()}
+function gdStep(n){for(var k=0;k<n;k++){var g=2*RX.reduce(function(s,x,i){return s+x*(gw*x-RYv[i])},0)/RX.length;gw-=0.004*g;gh.push(mse(gw))}gdDraw()}
+$('#gd1').addEventListener('click',function(){gdStep(1)});$('#gd5').addEventListener('click',function(){gdStep(5)});$('#gdReset').addEventListener('click',gdInit);gdInit();
+
+/* 신경망: 입력 2, 은닉 4, 출력 3. 실제로 학습합니다. */
+var W1,b1,W2,b2,nnEp;
+var LX=[80,180,280],LY=[[75,145],[35,85,135,185],[50,110,170]];
+function nnInit(){var r=rng(3),i;W1=[];b1=[0,0,0,0];W2=[];b2=[0,0,0];for(i=0;i<4;i++)W1.push([r()-.5,r()-.5]);for(i=0;i<3;i++)W2.push([r()-.5,r()-.5,r()-.5,r()-.5]);nnEp=0;drawNN(null);nnReport()}
+function fw(p){var x=[(p.x-5.5)/4.5,(p.y-5.5)/4.5];var h=W1.map(function(w,i){return Math.tanh(w[0]*x[0]+w[1]*x[1]+b1[i])});
+  var z=W2.map(function(w,i){return w.reduce(function(s,v,j){return s+v*h[j]},b2[i])});var m=Math.max.apply(null,z),e=z.map(function(v){return Math.exp(v-m)}),s=e.reduce(function(a,b){return a+b},0);
+  return {x:x,h:h,o:e.map(function(v){return v/s})}}
+function nnEpoch(lr){var gW1=[[0,0],[0,0],[0,0],[0,0]],gb1=[0,0,0,0],gW2=[[0,0,0,0],[0,0,0,0],[0,0,0,0]],gb2=[0,0,0],n=train.length,i,j;
+  train.forEach(function(p){var f=fw(p),dh=[0,0,0,0];f.o.forEach(function(v,i){var d=v-(TYPES[i]===p.t?1:0);gb2[i]+=d;for(var j=0;j<4;j++){gW2[i][j]+=d*f.h[j];dh[j]+=d*W2[i][j]}});
+    dh.forEach(function(v,j){var g=v*(1-f.h[j]*f.h[j]);gb1[j]+=g;gW1[j][0]+=g*f.x[0];gW1[j][1]+=g*f.x[1]})});
+  for(i=0;i<3;i++){b2[i]-=lr*gb2[i]/n;for(j=0;j<4;j++)W2[i][j]-=lr*gW2[i][j]/n}
+  for(j=0;j<4;j++){b1[j]-=lr*gb1[j]/n;W1[j][0]-=lr*gW1[j][0]/n;W1[j][1]-=lr*gW1[j][1]/n}nnEp++}
+function nnScore(){return testSet.filter(function(p){var o=fw(p).o;return TYPES[o.indexOf(Math.max.apply(null,o))]===p.t}).length}
+function wline(x1,y1,x2,y2,w){return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="var(--'+(w>=0?'c2':'c1')+')" stroke-width="'+Math.min(6,.5+Math.abs(w)*1.5).toFixed(2)+'" opacity=".75"/>'}
+function node(x,y,a){return '<circle cx="'+x+'" cy="'+y+'" r="13" fill="var(--card)"/><circle cx="'+x+'" cy="'+y+'" r="13" fill="var(--gold)" fill-opacity="'+a.toFixed(2)+'"/>'}
+function drawNN(f){var h='',i,j;
+  for(j=0;j<4;j++)for(i=0;i<2;i++)h+=wline(LX[0],LY[0][i],LX[1],LY[1][j],W1[j][i]);
+  for(i=0;i<3;i++)for(j=0;j<4;j++)h+=wline(LX[1],LY[1][j],LX[2],LY[2][i],W2[i][j]);
+  ['크기','색'].forEach(function(t,i){h+=node(LX[0],LY[0][i],f?(f.x[i]+1)/2:0)+'<text x="60" y="'+(LY[0][i]+5)+'" text-anchor="end">'+t+'</text>'});
+  for(j=0;j<4;j++)h+=node(LX[1],LY[1][j],f?Math.abs(f.h[j]):0);
+  TYPES.forEach(function(t,i){h+=node(LX[2],LY[2][i],f?f.o[i]:0)+'<text x="298" y="'+(LY[2][i]+5)+'">'+NAME[t]+(f?' '+Math.round(f.o[i]*100)+'%':'')+'</text>'});
+  h+='<text x="80" y="213" text-anchor="middle">입력층</text><text x="180" y="213" text-anchor="middle">은닉층</text><text x="280" y="213" text-anchor="middle">출력층</text>';
+  $('#nn').innerHTML=h}
+function nnReport(){var s=nnScore();say('rn',s>=9?'happy':s>=6?'normal':'think','연습 '+nnEp+'회. 시험용 열매 10개 중 '+s+'개를 맞혀요.'+(nnEp===0?' 아직 배우기 전이라 찍는 수준이에요.':''))}
+$('#nnTrain').addEventListener('click',function(){for(var i=0;i<5;i++)nnEpoch(0.5);drawNN(null);nnReport()});
+$('#nnShow').addEventListener('click',function(){var p=testSet[Math.floor(Math.random()*testSet.length)],f=fw(p);drawNN(f);var k=f.o.indexOf(Math.max.apply(null,f.o)),ok=TYPES[k]===p.t;
+  say('rn',ok?'happy':'sad','이번 열매는 '+NAME[p.t]+'. 제 대답은 '+NAME[TYPES[k]]+' ('+Math.round(f.o[k]*100)+'% 확신). '+(ok?'맞았어요!':'틀렸어요. 연습이 더 필요해요.'))});
+$('#nnReset').addEventListener('click',nnInit);nnInit();
+
+/* ---------- 7. 퀴즈와 기록 ---------- */
+var QS=[
+ ['병원에서 지난 환자들의 검사 수치와 진단 결과를 가지고, 새 환자의 진단을 예측해요.',['지도학습','비지도학습','강화학습'],0,'진단 결과라는 정답이 붙은 데이터로 배우니까 지도학습이에요.'],
+ ['이름표가 없는 음식 사진 수천 장을 비슷한 것끼리 자동으로 나눠요.',['지도학습','비지도학습','강화학습'],1,'정답 없이 비슷한 것끼리 묶으니 비지도학습이에요.'],
+ ['운전 시뮬레이터에서 사고 없이 달리면 점수를 얻고, 부딪히면 점수를 잃으며 운전을 익혀요.',['지도학습','비지도학습','강화학습'],2,'보상과 벌점으로 행동을 배우니 강화학습이에요.'],
+ ['지난 판매 기록으로 내일 빵이 몇 개 팔릴지 맞혀요.',['분류','회귀','군집화'],1,'이름이 아니라 숫자를 맞히는 것은 회귀예요.'],
+ ['용접 사진에서 결함이 있는 자리에 상자를 그리고 "기공"이라고 적어요.',['정제','수집','어노테이션(라벨링)'],2,'데이터에 위치와 이름 정보를 덧붙이는 일은 어노테이션이에요.'],
+ ['맑은 날 사진만 모아 배운 자동차 인식 프로그램이 비 오는 날에는 차를 못 알아봐요. 원인은?',['한쪽으로 치우친 데이터(편향)','중복 데이터','이름표를 너무 많이 붙임'],0,'도토리만 잔뜩 모은 바구니처럼, 한쪽 상황만 모으면 다른 상황에서 틀려요.'],
+ ['딥러닝에 대한 설명으로 알맞은 것은?',['지도, 비지도, 강화학습에 이은 네 번째 학습 종류다','어느 학습에나 쓸 수 있는, 신경망을 깊게 쌓는 방법이다','머신러닝과 관계가 없다'],1,'딥러닝은 종류가 아니라 방법이에요. 세 가지 학습 모두에 쓸 수 있어요.'],
+ ['배울 때 쓰지 않은 데이터로 시험을 보는 이유는?',['데이터가 남아서','더 빨리 배우려고','처음 보는 문제도 잘 푸는지 확인하려고'],2,'연습 문제만 외운 것(과적합)은 아닌지 확인하려면 처음 보는 데이터가 필요해요.']
+];
+function quizScore(){var s=0;(S.quiz||[]).forEach(function(a,i){if(a===QS[i][2])s++});return s}
+function quizCount(){return (S.quiz||[]).filter(function(a){return a!==null&&a!==undefined}).length}
+function drawQuiz(){if(!S.quiz||S.quiz.length!==QS.length)S.quiz=QS.map(function(){return null});
+  $('#quiz').innerHTML=QS.map(function(q,i){var a=S.quiz[i],done=a!==null;
+    return '<div class="q" data-q="'+i+'"><p>'+(i+1)+'. '+q[0]+'</p><div class="opts">'+q[1].map(function(o,j){return '<button data-j="'+j+'"'+(done?' disabled':'')+' class="'+(done&&j===q[2]?'right':done&&j===a?'wrong':'')+'">'+o+'</button>'}).join('')+'</div><div class="why">'+(done?(a===q[2]?'맞아요. ':'아쉬워요. ')+q[3]:'')+'</div></div>'}).join('');
+  var n=quizCount(),s=quizScore();
+  if(n<QS.length)say('rq','normal','지금까지 '+n+'문제를 풀었고 '+s+'개 맞혔어요.');
+  else{say('rq',s>=7?'happy':s>=5?'normal':'think','8문제 중 '+s+'개 정답! '+(s>=7?'숲 교실 졸업이에요.':'틀린 문제의 해설을 다시 읽어 봐요.'));stamp('u7')}
+  drawRecord()}
+$('#quiz').addEventListener('click',function(e){var b=e.target.closest('button');if(!b||b.disabled)return;S.quiz[+b.closest('.q').dataset.q]=+b.dataset.j;save();drawQuiz()});
+$('#quizReset').addEventListener('click',function(){S.quiz=null;save();drawQuiz()});
+
+function drawRecord(){var el=$('#record');if(!el)return;var n=0;STAMPS.forEach(function(k){if(S.done[k])n++});
+  var t='[다람쥐 토리의 겨울 준비 활동 기록]\n이름: '+(S.who||'')+'\n도토리 도장: '+n+' / 7\n상황 퀴즈: '+quizScore()+' / 8 ('+quizCount()+'문제 풂)\n';
+  ['u1','u2','u3','u4','u5','u6'].forEach(function(k,i){t+='\n'+(i+1)+'단원 생각: '+((S.notes[k]||'').trim()||'(적지 않음)')});el.value=t}
+$('#who').value=S.who;$('#who').addEventListener('input',function(){S.who=this.value;save();drawRecord()});
+$('#record').addEventListener('focus',function(){this.select()});
+$('#wipe').addEventListener('click',function(){if(this.dataset.sure!=='1'){this.dataset.sure='1';this.textContent='정말 지울까요? 한 번 더 누르면 지워져요';return}
+  try{localStorage.removeItem(KEY)}catch(e){}location.reload()});
+
+drawQuiz();go(S.u,false);
+})();
+</script>
+</body>
+</html>
